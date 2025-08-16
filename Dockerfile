@@ -27,11 +27,10 @@ FROM alpine:latest
 
 WORKDIR /app
 
+
 # Copy necessary assets and the final compiled binaries from the builder stage.
 COPY --from=builder /app/web ./web
 COPY --from=builder /app/server .
-COPY --from=builder /app/server .
-COPY --from=builder /app/cli .
 
 # Note: We do not need to copy the migrations/ folder because the .sql files
 # are now embedded directly inside the /app/cli binary.

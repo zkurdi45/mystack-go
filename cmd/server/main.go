@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/zkurdi45/mystack-go/internal/data"
 	"github.com/zkurdi45/mystack-go/internal/handler"
@@ -28,9 +27,6 @@ func main() {
 	models := data.NewModels(db)
 
 	// Increase timeout to 5 minutes to allow for long-running PDF processing.
-	httpClient := &http.Client{
-		Timeout: time.Minute * 5,
-	}
 
 	h := handler.New(
 		logger,
