@@ -42,3 +42,23 @@ This is a boilerplate for starting a Go project with the following technologies:
    ```
 
 5. The application will be available at http://localhost:8080.
+
+## Development
+
+This project uses `go-templ` for templating. You will need to install the `templ` CLI to generate the Go code from the `.templ` files.
+
+### Installation
+
+```bash
+go install github.com/a-h/templ/cmd/templ@latest
+```
+
+### Generating Code
+
+To generate the Go code from the `.templ` files, run the following command:
+
+```bash
+templ generate
+```
+
+This will generate the necessary Go files in the `web/templates` directory. You should run this command whenever you make changes to the `.templ` files.
