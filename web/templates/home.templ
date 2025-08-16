@@ -1,0 +1,22 @@
+// web/templates/home.templ
+package templates
+
+import "fmt"
+
+templ Home(cacheBuster string) {
+<html>
+
+<head>
+	<title>some title</title>
+	<link rel="stylesheet" href={ templ.URL(fmt.Sprintf("/static/css/output.css?v=%s", cacheBuster)) } />
+	<script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+
+<body class="bg-gray-600 text-white">
+	<div class="min-h-screen flex items-center justify-center">
+		just a home page
+	</div>
+</body>
+
+</html>
+}

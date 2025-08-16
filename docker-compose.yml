@@ -1,0 +1,71 @@
+# docker-compose.yml
+
+services:
+  # 1. PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # 2. Tailwindcss Service
+  tailwind:
+    build:
+      context: .
+      dockerfile: tailwind.Dockerfile
+    container_name: tailwindcss_compiler
+    entrypoint: []
+    volumes:
+      - .:/app
+    command: tailwindcss -i ./web/static/css/input.css -o ./web/static/css/output.css --watch
+    restart: unless-stopped
+    tty: true
+    stop_grace_period: 0s
+
+  # 3. Main Go Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: digital_ayoub_app
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    env_file:
+      - .env
+    volumes:
+      - ./tmp:/app/tmp
+    depends_on:
+      postgres:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+          ignore:
+            - .git
+            - .gitignore
+            - .idea
+            - .vscode
+            - tmp
+            - "*.log"
+            - .env
+            - .env.example
+            - vendor
+            - node_modules
+            - "**/*_templ.go"
+            - "web/static/css/output.css"
+
+volumes:
+  postgres_data:

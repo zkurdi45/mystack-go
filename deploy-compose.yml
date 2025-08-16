@@ -1,0 +1,56 @@
+# deploy-compose.yml (For Production/Deployment)
+
+services:
+  # 1. PostgreSQL Database Service (No changes needed)
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+
+  # 2. Main Go Application Service (MODIFIED)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: digital_ayoub_app
+    expose:
+      - "${APP_PORT}"
+    env_file:
+      - .env
+    volumes:
+      - app_temp_data:/app/tmp
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # --- THIS IS THE CRITICAL CHANGE ---
+    # This command defines the production startup sequence. It uses a shell
+    # to chain commands: first migrate, then seed, then start the server.
+    # The '&&' ensures that the next command only runs if the previous one succeeds.
+    command: >
+      sh -c "./cli -migrate && ./cli -seed-admin && ./server"
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+
+
+volumes:
+  postgres_data:
+  app_temp_data: {}
+networks:
+  dokploy-network:
+    external: true

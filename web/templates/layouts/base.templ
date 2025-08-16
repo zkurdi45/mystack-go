@@ -1,0 +1,20 @@
+package layouts
+
+import "github.com/zkurdi45/mystack-go/web/templates"
+
+templ Base(title string, cacheBuster string) {
+<html>
+
+<head>
+	<title>{ title }</title>
+	<link rel="stylesheet" href={ templ.URL(templates.GetStaticURL("/css/output.css", cacheBuster)) } />
+	<script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body class="bg-gray-900 text-white antialiased">
+	{ children... }
+</body>
+
+</html>
+}
